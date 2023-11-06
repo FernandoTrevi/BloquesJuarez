@@ -1,7 +1,20 @@
+using BloquesJuarez.Datos;
+using Humanizer.Configuration;
+using Microsoft.EntityFrameworkCore;
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<AplicationDBContext>(options =>
+                            options.UseSqlServer(
+                                builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Configurar el servicio HttpContextAccessor que permite acceder a información sobre la solicitud web actual
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

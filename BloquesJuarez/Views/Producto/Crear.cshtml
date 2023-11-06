@@ -1,0 +1,74 @@
+﻿@model BloquesJuarez.Models.ViewModels.ProductoVM
+@{
+    ViewData["Title"] = "Crear";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form method="post" asp-action="Crear">
+    <div class="border p-3 main-container">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group text-center">
+            <h2 class="text-info">Nuevo Producto</h2>
+        </div>
+        <hr />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <label asp-for="Producto.NombreProducto" class="form-label font-weight-bold">Nombre del Producto</label>
+                    <input asp-for="Producto.NombreProducto" class="form-control" />
+                    <span asp-validation-for="Producto.NombreProducto" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Producto.CategoriaId" class="form-label font-weight-bold">Categoría</label>
+                    <select asp-for="Producto.CategoriaId" asp-items="@Model.CategoriaLista" class="form-select">
+                        <option disabled selected>--Seleccione una Categoría</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label asp-for="Producto.UniDeMedida" class="form-label font-weight-bold">Unidad de Medida</label>
+                    <select asp-for="Producto.UniDeMedida" class="form-select">
+                        <option value="Kg">Kg</option>
+                        <option value="Unidades">Unidades</option>
+                        <option value="Mts cúbicos">Mts cúbicos</option>
+                        <option value="Horas">Horas</option>
+                        <option value="Pallets">Pallets</option>
+                        <option value="Bolsas">Bolsas</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Producto.Precio" class="form-label font-weight-bold">Precio</label>
+                    <input asp-for="Producto.Precio" class="form-control" />
+                    <span asp-validation-for="Producto.Precio" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-6 col-md-6">
+                    <button type="submit" class="btn btn-primary form-control">Crear Producto</button>
+                </div>
+                <div class="col-6 col-md-6">
+                    <a asp-controller="Producto" asp-action="Index" class="btn btn-secondary form-control">Regresar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<style>
+    .main-container {
+        padding: 20px; /* Ajusta el valor según tu preferencia */
+        max-width: 800px; /* Ajusta el ancho máximo según tu preferencia */
+        margin: 0 auto; /* Para centrar el contenido */
+    }
+</style>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
+
+

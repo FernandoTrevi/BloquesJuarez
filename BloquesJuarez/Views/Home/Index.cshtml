@@ -1,8 +1,65 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Página de inicio";
 }
 
+<style>
+    #background-container {
+        background-image: url("/imagenes/fondoHome.jpg");
+        background-size: cover;
+        background-attachment: fixed;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1; /* Coloca el contenedor detrás del contenido */
+        opacity: 0.4; /* Ajusta la transparencia de la imagen de fondo */
+    }
+
+    .text-center {
+        padding: 20px;
+        border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    #clock {
+        font-size: 24px;
+        text-align: center;
+    }
+
+    /* Estilos para los enlaces a Facebook e Instagram */
+    .social-links {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+        .social-links a {
+            font-size: 24px;
+            margin: 0 10px;
+            color: #333; /* Cambia el color de los íconos si es necesario */
+        }
+</style>
+
+<div id="background-container"></div>
+
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">¡Bienvenido!</h1>
 </div>
+
+<div id="clock">
+    Hora: <span id="clockTime"></span>
+</div>
+
+
+
+<script>
+    function updateClock() {
+        var now = new Date();
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
+        document.getElementById("clockTime").innerText = hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    }
+
+    setInterval(updateClock, 1000);
+</script>

@@ -1,0 +1,71 @@
+﻿@model BloquesJuarez.Models.Producto
+@{
+    ViewData["Title"] = "Eliminar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form method="post" asp-action="ConfirmarEliminar">
+    <input asp-for="Id" hidden />
+
+    <div class="border p-3 main-container">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group text-center">
+            <h2 class="text-danger">¿Desea eliminar este producto?</h2>
+        </div>
+        <hr />
+
+        <div class="container">
+            <div class="form-row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label asp-for="NombreProducto" class="form-label font-weight-bold">Nombre del producto</label>
+                        <input asp-for="NombreProducto" class="form-control" disabled />
+                        <span asp-validation-for="NombreProducto" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label asp-for="UniDeMedida" class="form-label font-weight-bold">Unidad de medida</label>
+                        <input asp-for="UniDeMedida" class="form-control" disabled />
+                        <span asp-validation-for="UniDeMedida" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label asp-for="Precio" class="form-label font-weight-bold">Precio</label>
+                        <input asp-for="Precio" class="form-control" disabled />
+                        <span asp-validation-for="Precio" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-danger btn-sm form-control">Eliminar Producto</button>
+            </div>
+            <div class="col-md-6">
+                <a asp-controller="Producto" asp-action="Index" class="btn btn-secondary btn-sm form-control">Regresar</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<style>
+    .main-container {
+        padding: 20px; /* Ajusta el valor según tu preferencia */
+        max-width: 800px; /* Ajusta el ancho máximo según tu preferencia */
+        margin: 0 auto; /* Para centrar el contenido */
+    }
+</style>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
+
+
+

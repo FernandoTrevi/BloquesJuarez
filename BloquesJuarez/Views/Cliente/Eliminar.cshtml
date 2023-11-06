@@ -1,0 +1,74 @@
+﻿@model BloquesJuarez.Models.Cliente
+@{
+    ViewData["Title"] = "Eliminar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form method="post" asp-action="ConfirmarEliminar">
+    <input asp-for="Id" hidden />
+
+    <div class="border p-3 main-container">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group text-center">
+            <h2 class="text-danger">¿Desea eliminar éste cliente?</h2>
+        </div>
+        <hr />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label asp-for="NombreCliente" class="form-label font-weight-bold">Nombre y apellido</label>
+                        <input asp-for="NombreCliente" class="form-control" disabled />
+                        <span asp-validation-for="NombreCliente" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label asp-for="Localidad" class="form-label font-weight-bold">Localidad</label>
+                        <input asp-for="Localidad" class="form-control" disabled />
+                        <span asp-validation-for="Localidad" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label asp-for="Telefono" class="form-label font-weight-bold">Teléfono</label>
+                        <input asp-for="Telefono" class="form-control" disabled />
+                        <span asp-validation-for="Telefono" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-danger btn-sm form-control">Eliminar Cliente</button>
+            </div>
+            <div class="col-md-6">
+                <a asp-controller="Cliente" asp-action="Index" class="btn btn-secondary btn-sm form-control">Regresar</a>
+            </div>
+        </div>
+
+
+    </div>
+
+</form>
+
+
+<style>
+    .main-container {
+        padding: 20px; /* Ajusta el valor según tu preferencia */
+        max-width: 800px; /* Ajusta el ancho máximo según tu preferencia */
+        margin: 0 auto; /* Para centrar el contenido */
+    }
+</style>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
