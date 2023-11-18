@@ -15,5 +15,7 @@ namespace BloquesJuarez.Datos
         public DbSet<CondIva> CondIva{ get; set; }
         public DbSet<Provincia> Provincia { get; set; }
         public DbSet<Producto> Producto { get; set; }
+        public DbSet<Remito> Remito { get; set; }
+        public DbSet<RemitoDetalle> RemitoDetalle { get; set; }
     }
 }

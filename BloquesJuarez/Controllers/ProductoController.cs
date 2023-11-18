@@ -64,7 +64,6 @@ namespace BloquesJuarez.Controllers
             return View(productoVM);
         }
         // POST: ProductoController/Crear
-        // POST: ProductoController/Crear
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Crear(ProductoVM productoVM)

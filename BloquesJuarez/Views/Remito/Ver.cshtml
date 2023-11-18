@@ -1,0 +1,176 @@
+﻿@model BloquesJuarez.Models.ViewModels.RemitoVM
+@{
+    ViewData["Title"] = "Ver";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row mt-2">
+        <div class="col-sm-2">
+            <!-- Logo compacto -->
+            <img src="/imagenes/logoJuarez.jpg" alt="Logo de la empresa" class="img-fluid" style="max-width: 80px;">
+        </div>
+
+        <div class="col-sm-6">
+            <!-- Datos de la empresa Bloques Juarez -->
+            <h5 style="color:blue">Bloques Juarez</h5>
+            <p>Dirección de la empresa</p>
+            <p>Teléfono de la empresa</p>
+        </div>
+
+        <div class="col-sm-4 text-right">
+            <!-- Número de remito y fecha -->
+            <h4>Remito # @Model.Remito.NroRemito</h4>
+            <p>Fecha: @Model.Remito.Fecha.ToString("dd/MM/yyyy")</p>
+        </div>
+    </div>
+
+
+    <div class="row mt-3">
+        <div class="col-sm-6">
+            <!-- Datos del cliente -->
+            <h5>Datos del Cliente</h5>
+            <p>Nombre: @Model.Remito.Cliente.NombreCliente</p>
+            <p>Dirección: @Model.Remito.Cliente.Direccion, @Model.Remito.Cliente.Localidad</p>
+            <p>Teléfono: @Model.Remito.Cliente.Telefono</p>
+        </div>
+        <div class="col-sm-6">
+            <!-- Datos del cliente -->
+            <h5>Datos de Entrega</h5>
+            <p>Lugar de Entrega: @Model.Remito.LugarEntrega</p>
+            <p>Observaciones: @Model.Remito.Observaciones</p>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <!-- Tabla de productos -->
+            <h5>Detalle de Productos</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Cantidad</th>
+                        <th>Producto</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in Model.RemitoDetalle)
+                    {
+                        <tr>
+                            <td>@detalle.Cantidad @detalle.Producto.UniDeMedida</td>
+                            <td>@detalle.Producto.NombreProducto</td>
+                            <td>@detalle.Producto.Precio</td>
+                            <td>@(Convert.ToDecimal(detalle.Cantidad) * (decimal)detalle.Producto.Precio)</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-6 offset-md-6 text-right">
+            <!-- Total -->
+            <h5 class="text-right">Total: @Convert.ToDecimal(Model.RemitoDetalle.Sum(d => Convert.ToDecimal(d.Cantidad) * (decimal)d.Producto.Precio)).ToString("C")</h5>
+
+            <!-- Botones -->
+            <div class="mt-4 d-print-none">
+                <a href="@Url.Action("Index", "Remito")" class="btn btn-primary">Volver</a>
+                <button class="btn btn-success" onclick="window.print()">Imprimir</button>
+            </div>
+        </div>
+    </div>
+    
+  
+    <!-- ... Linea... -->
+    <div class="row mt-2 d-none d-print-block" style="page-break-before:always">
+        <div class="col-sm-12 text-center">
+            <hr style="border: 1px dashed #000; width: 100%; margin: 10px auto;">
+        </div>
+    </div>
+    <!-- ... FIN Linea... -->
+
+    <!-- ... Membrete hidden.. -->
+    <div class="row mt-2 d-none d-print-flex">
+        <div class="col-sm-2">
+            <!-- Logo compacto -->
+            <img src="/imagenes/logoJuarez.jpg" alt="Logo de la empresa" class="img-fluid" style="max-width: 80px;">
+        </div>
+
+        <div class="col-sm-6">
+            <!-- Datos de la empresa Bloques Juarez -->
+            <h5 style="color:blue">Bloques Juarez</h5>
+            <p>Dirección de la empresa</p>
+            <p>Teléfono de la empresa</p>
+        </div>
+
+        <div class="col-sm-4 text-right">
+            <!-- Número de remito y fecha -->
+            <h4>Remito # @Model.Remito.NroRemito</h4>
+            <p>Fecha: @Model.Remito.Fecha.ToString("dd/MM/yyyy")</p>
+        </div>
+    </div>
+
+    <!-- ... Datos cliente y entrega hidden... -->
+    <div class="row mt-3 d-none d-print-flex">
+        <div class="col-sm-6">
+            <!-- Datos del cliente -->
+            <h5>Datos del Cliente</h5>
+            <p>Nombre: @Model.Remito.Cliente.NombreCliente</p>
+            <p>Dirección: @Model.Remito.Cliente.Direccion, @Model.Remito.Cliente.Localidad</p>
+            <p>Teléfono: @Model.Remito.Cliente.Telefono</p>
+        </div>
+        <div class="col-sm-6">
+            <!-- Datos del cliente -->
+            <h5>Datos de Entrega</h5>
+            <p>Lugar de Entrega: @Model.Remito.LugarEntrega</p>
+            <p>Observaciones: @Model.Remito.Observaciones</p>
+        </div>
+    </div>
+
+    <!-- ... Datos productos hidden... -->
+    <div class="row mt-3 d-none d-print-flex">
+        <div class="col-md-12">
+            <!-- Tabla de productos -->
+            <h5>Detalle de Productos</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Cantidad</th>
+                        <th>Producto</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in Model.RemitoDetalle)
+                    {
+                        <tr>
+                            <td>@detalle.Cantidad</td>
+                            <td>@detalle.Producto.NombreProducto</td>
+                            <td>@detalle.Producto.Precio</td>
+                            <td>@(Convert.ToDecimal(detalle.Cantidad) * (decimal)detalle.Producto.Precio)</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+    <h5 class="text-right d-none d-print-block">Total: @Convert.ToDecimal(Model.RemitoDetalle.Sum(d => Convert.ToDecimal(d.Cantidad) * (decimal)d.Producto.Precio)).ToString("C")</h5>
+
+   
+</div>
+<style>
+    .col-sm-6 p {
+        margin-bottom: 0.1rem; /* Ajusta según tus necesidades */
+    }
+</style>
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
