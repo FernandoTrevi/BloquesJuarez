@@ -13,7 +13,7 @@
             <h2 class="text-info">Lista de Clientes</h2>
         </div>
         <div class="col-6 text-end">
-            <a asp-controller="Cliente" asp-action="Crear" class="btn btn-primary">
+            <a asp-controller="Cliente" asp-action="Crear" class="btn btn-primary" data-toggle="tooltip" title="Crear un nuevo cliente">
                 <i class="fas fa-plus"></i>  Nuevo Cliente
             </a>
         </div>
@@ -55,10 +55,10 @@
                                     <td>@item.Localidad</td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a asp-controller="Cliente" asp-action="Editar" asp-route-Id="@item.Id" class="btn btn-primary mx-2">
+                                            <a asp-controller="Cliente" asp-action="Editar" asp-route-Id="@item.Id" class="btn btn-primary mx-2" data-toggle="tooltip" title="Cambiar datos del cliente">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
-                                            <a asp-controller="Cliente" asp-action="Eliminar" asp-route-Id="@item.Id" class="btn btn-danger mx-2">
+                                            <a asp-controller="Cliente" asp-action="Eliminar" asp-route-Id="@item.Id" class="btn btn-danger mx-2" data-toggle="tooltip" title="Eliminar el cliente">
                                                 <i class="bi bi-trash"></i>
                                             </a>
                                         </div>

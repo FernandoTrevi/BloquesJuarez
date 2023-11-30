@@ -12,8 +12,11 @@
             <h2 class="text-info">Lista de Remitos</h2>
         </div>
         <div class="col-6 text-end">
-            <a asp-controller="Remito" asp-action="Crear" class="btn btn-primary">
-                <i class="fas fa-plus"></i>  Nuevo Remito
+            <a asp-controller="Remito" asp-action="Crear" class="btn btn-primary" data-toggle="tooltip" title="Generar un nuevo Remito">
+                <i class="bi bi-plus-circle-fill"></i>  Nuevo Remito
+            </a>
+            <a asp-controller="Remito" asp-action="ClientesConPendientes" class="btn btn-info" data-toggle="tooltip" title="Ver lista de clientes con remitos pendientes">
+                <<i class="bi bi-person-lines-fill"></i>  Clientes con pendientes
             </a>
         </div>
     </div>
@@ -41,6 +44,7 @@
                                 <th>Fecha</th>
                                 <th>Nro Remito</th>
                                 <th>Cliente</th>
+                                <th>Estado</th>
                                 <th style="width: 80px;">Acciones</th>
                             </tr>
                         </thead>
@@ -52,13 +56,16 @@
                                     <td>@item.Fecha.ToShortDateString()</td>
                                     <td>@item.NroRemito</td>
                                     <td>@item.Cliente.NombreCliente</td>
+                                    <td>
+                                        <span class="badge @GetBadgeClass(item.Estado)">@item.Estado.ToString()</span>
+                                    </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a asp-controller="Remito" asp-action="Ver" asp-route-Id="@item.Id" class="btn btn-primary mx-2">
+                                            <a asp-controller="Remito" asp-action="Ver" asp-route-Id="@item.Id" class="btn btn-primary mx-2" data-toggle="tooltip" title="Ver detalles del remito">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                           
-                                            <a asp-controller="Remito" asp-action="Eliminar" asp-route-Id="@item.Id" class="btn btn-danger mx-2">
+
+                                            <a asp-controller="Remito" asp-action="Eliminar" asp-route-Id="@item.Id" class="btn btn-danger mx-2" data-toggle="tooltip" title="Elimiar el remito">
                                                 <i class="bi bi-trash"></i>
                                             </a>
                                         </div>
@@ -108,3 +115,22 @@
         <partial name="_ValidationScriptsPartial" />
     }
 }
+@functions {
+    public string GetBadgeClass(EstadoRemito estado)
+    {
+        return estado == EstadoRemito.Pendiente ? "bg-danger" : "bg-success";
+    }
+}
+<style>
+    /* Estilos para los badges de estado */
+    .bg-danger {
+        background-color: red;
+        color: white;
+    }
+
+    .bg-success {
+        background-color: green;
+        color: white;
+    }
+
+</style>

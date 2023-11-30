@@ -22,9 +22,18 @@ namespace BloquesJuarez.Models
         // Lugar de entrega
         public string LugarEntrega { get; set; }
 
-        public string Observaciones { get; set; }       
+        public string Observaciones { get; set; }
+
+        [Required]
+        public EstadoRemito Estado { get; set; }
 
         public virtual List<RemitoDetalle> Detalles { get; set; }
     }
+    public enum EstadoRemito
+    {
+        Pendiente,
+        Pagado
+    }
+
 
 }

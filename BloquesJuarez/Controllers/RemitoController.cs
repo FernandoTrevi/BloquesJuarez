@@ -46,7 +46,7 @@ namespace BloquesJuarez.Controllers
                 query = query.OrderBy(r => r.Id); // Orden predeterminado
             }
 
-            int cantidadregistros = 5; // Cambia esta cantidad según tus preferencias
+            int cantidadregistros = 5; 
             var paginacion = await Paginacion<Remito>.CrearPaginacion(query, numpag ?? 1, cantidadregistros);
 
             return View(paginacion);
@@ -61,7 +61,8 @@ namespace BloquesJuarez.Controllers
                 .Select(p => new SelectListItem
                 {
                     Value = p.Id.ToString(),
-                    Text = p.NombreCliente
+                    Text = p.NombreCliente,
+
                 }),
                 ProductoLista =_db.Producto
                 .Select(p => new SelectListItem
@@ -98,6 +99,8 @@ namespace BloquesJuarez.Controllers
                         ClienteId = remitoVM.Remito.ClienteId,
                         Observaciones = remitoVM.Remito.Observaciones,
                         LugarEntrega = remitoVM.Remito.LugarEntrega,
+                        Estado = remitoVM.Remito.Estado
+
                     };
 
                     // 2. Agregar la orden de compra al contexto
@@ -235,6 +238,140 @@ namespace BloquesJuarez.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        //public IActionResult ClientesConPendientes()
+        //{
+        //    IQueryable<Remito> query = _db.Remito.Include(r => r.Cliente);
+
+        //    // Filtrar por remitos pendientes
+        //    query = query.Where(r => r.Estado == EstadoRemito.Pendiente);
+
+        //    var clientesConPendientes = query
+        //        .Select(r => new ClienteConPendientesVM
+        //        {
+        //            Id = r.Cliente.Id,
+        //            NombreCliente = r.Cliente.NombreCliente,
+        //            Telefono = r.Cliente.Telefono,
+        //            RemitosPendientes = _db.Remito.Count(subR => subR.ClienteId == r.ClienteId && subR.Estado == EstadoRemito.Pendiente)
+        //        })
+        //        .Distinct()
+        //        .OrderBy(c => c.NombreCliente)
+        //        .ToList();
+
+        //    return View(clientesConPendientes);
+        //}
+
+        public async Task<IActionResult> ClientesConPendientes(string buscar, string ordenActual, int? numpag, string filtroActual)
+        {
+            IQueryable<Remito> query = _db.Remito.Include(r => r.Cliente);
+
+            // Filtrar por remitos pendientes
+            query = query.Where(r => r.Estado == EstadoRemito.Pendiente);
+
+            if (buscar != null)
+            {
+                numpag = 1;
+            }
+            else
+            {
+                buscar = filtroActual;
+            }
+
+            ViewData["OrdenActual"] = ordenActual;
+            ViewData["FiltroActual"] = buscar;
+
+            if (!string.IsNullOrEmpty(buscar))
+            {
+                query = query.Where(r => r.Cliente.NombreCliente.Contains(buscar));
+            }
+
+            if (ordenActual == "nombrecliente")
+            {
+                query = query.OrderBy(r => r.Cliente.NombreCliente);
+            }
+            else
+            {
+                query = query.OrderBy(r => r.Cliente.Id); // Orden predeterminado
+            }
+
+            int cantidadregistros = 5; // Puedes ajustar la cantidad de registros por página según tus necesidades
+            var paginacion = await Paginacion<ClienteConPendientesVM>.CrearPaginacion(
+               query.Select(r => new ClienteConPendientesVM
+               {
+                   Id = r.Cliente.Id,
+                   NombreCliente = r.Cliente.NombreCliente,
+                   Telefono = r.Cliente.Telefono,
+                   RemitosPendientes = _db.Remito.Count(subR => subR.ClienteId == r.ClienteId && subR.Estado == EstadoRemito.Pendiente)
+               })
+               .Distinct()
+               .OrderBy(c => c.NombreCliente)
+               .AsQueryable(), numpag ?? 1, cantidadregistros);
+
+            return View(paginacion);
+        }
+
+        public IActionResult VerRemitosCliente(int clienteId)
+        {
+            // Obtener cliente de la base de datos
+            var cliente = _db.Cliente.Find(clienteId);
+
+            // Obtener remitos pendientes para el cliente con detalles
+            var remitosPendientes = _db.Remito
+                .Where(r => r.ClienteId == clienteId && r.Estado == EstadoRemito.Pendiente)
+                .Select(r => new RemitoPendienteVM
+                {
+                    NroRemito = r.NroRemito,
+                    Fecha = r.Fecha,
+                    Detalles = r.Detalles.Select(d => new RemitoDetalleVM
+                    {
+                        NombreProducto = d.Producto.NombreProducto,
+                        Cantidad = d.Cantidad,
+                        PrecioUnitario = d.Producto.Precio
+                    }).ToList()
+                })
+                .ToList();
+
+            // Construir el ViewModel
+            var clienteConPendientesVM = new ClienteConPendientesVM
+            {
+                Id = cliente.Id,
+                NombreCliente = cliente.NombreCliente,
+                Telefono = cliente.Telefono,
+                ListaRemitosPendientes = remitosPendientes
+            };
+
+            // Pasar el ViewModel a la vista
+            return View(clienteConPendientesVM);
+        }
+
+
+        [HttpPost]
+        public IActionResult ConfirmarRemitos(List<int> remitos)
+        {
+            try
+            {
+                // Lógica para actualizar el estado de los remitos en la base de datos a "Pagado"
+                foreach (var remitoId in remitos)
+                {
+                    var remito = _db.Remito.FirstOrDefault(r => r.NroRemito == remitoId);
+                    if (remito != null)
+                    {
+                        remito.Estado = EstadoRemito.Pagado;
+                    }
+                }
+                _db.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al confirmar remitos." });
+            }
+        }
+
+       
+
+
         // Función para obtener el último número de orden
         private int ObtenerUltimoNumeroOrden()
         {

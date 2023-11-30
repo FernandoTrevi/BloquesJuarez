@@ -46,12 +46,16 @@
     <h1 class="display-4">¡Bienvenido!</h1>
 </div>
 
+
+
+<div class="text-center mt-4">
+    <a asp-controller="Remito" asp-action="Crear" class="btn btn-primary mr-2" data-toggle="tooltip" title="Generar un nuevo remito">Nuevo Remito</a>
+    <a asp-controller="Cliente" asp-action="Crear" class="btn btn-primary mr-2" data-toggle="tooltip" title="Crear un nuevo cliente">Nuevo Cliente</a>
+    <a asp-controller="Remito" asp-action="ClientesConPendientes" class="btn btn-primary" data-toggle="tooltip" title="Ver la lista de clientes con remitos pendientes">Clientes con Pendientes</a>
+</div>
 <div id="clock">
     Hora: <span id="clockTime"></span>
 </div>
-
-
-
 <script>
     function updateClock() {
         var now = new Date();

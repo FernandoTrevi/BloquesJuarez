@@ -1,0 +1,233 @@
+﻿
+
+@model BloquesJuarez.Models.ViewModels.ClienteConPendientesVM
+
+@{
+    ViewData["Title"] = "Ver Remitos Pendientes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container p-2">
+    <h2 class="text-info">Remitos Pendientes de @Model.NombreCliente</h2>
+    <p><strong>Teléfono:</strong> @Model.Telefono</p>
+
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr class="table-dark text-center">
+                <th>Número de Remito</th>
+                <th>Fecha</th>
+                <th>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="checkTodos">
+                        <label class="form-check-label" for="checkTodos">Todos</label>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var remito in Model.ListaRemitosPendientes)
+            {
+                <tr>
+                    <td><strong>@remito.NroRemito</strong></td>
+                    <td><strong>@remito.Fecha.ToString("dd-MM-yyyy")</strong></td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="checkRemito@(remito.NroRemito)" name="remitosSeleccionados" value="@remito.NroRemito">
+                            <span id="pendienteText@(remito.NroRemito)" style="color: red; display: none;">Pendiente</span>
+
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Detalles del remito -->
+                <tr class="detalle-remito" id="detalleRemito@(remito.NroRemito)" style="display: none;">
+                    <td colspan="4">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr class="table-info">
+                                    <th>Nombre del Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unitario</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detalle in remito.Detalles)
+                                {
+                                    <tr>
+                                        <td>@detalle.NombreProducto</td>
+                                        <td>@detalle.Cantidad</td>
+                                        <td>@detalle.PrecioUnitario</td>
+                                        <td>@((double)detalle.Cantidad * detalle.PrecioUnitario)</td> <!-- Convertir la cantidad a double antes de la multiplicación -->
+                                    </tr>
+                                }
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td class="total-rem" id="totalRemito@(remito.NroRemito)"><strong>Total Remito:</strong> @((double)remito.Detalles.Sum(d => (double)d.Cantidad * d.PrecioUnitario))</td> <!-- Convertir la cantidad a double antes de sumar -->
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+
+            }
+           
+        </tbody>
+        
+    </table>
+    
+    <!-- Total general de remitos seleccionados -->
+    <h5 style="text-align:end">
+        <strong>Total a Pagar:</strong> <span id="totalGeneral">0.00</span>
+    </h5>
+    <div class="row">
+        <div class="col-md-6">
+            <button class="btn btn-primary d-print-none" onclick="confirmarRemito()" data-toggle="tooltip" title="Confirmar e imprimir los remitos seleccionados">
+                Confirmar Remito
+            </button>
+        </div>
+        <div class="col-md-6 text-right">
+            <a asp-action="ClientesConPendientes" class="btn btn-secondary  d-print-none">Volver</a>
+        </div>
+    </div>
+
+</div>
+
+
+@section Scripts {
+    <script>
+        // Función para marcar todos los checkboxes por defecto
+        $(document).ready(function () {
+            toggleCheckAll();
+        });
+
+        // Función para marcar/desmarcar todos los checkboxes
+        function toggleCheckAll() {
+            var isChecked = $("#checkTodos").prop("checked");
+            $("input[name='remitosSeleccionados']").prop("checked", isChecked);
+            toggleDetails();
+        }
+
+        // Evento de cambio en el checkbox "Todos"
+        $("#checkTodos").change(function () {
+            toggleCheckAll();
+        });
+
+        // Evento de cambio en cualquier checkbox individual
+        $("input[name='remitosSeleccionados']").change(function () {
+            toggleDetails();
+        });
+
+        // Función para mostrar/ocultar los detalles según el estado de las casillas
+        function toggleDetails() {
+            $("input[name='remitosSeleccionados']").each(function () {
+                var remitoNro = $(this).val();
+                var isChecked = $(this).prop("checked");
+                var detallesRow = $("#detalleRemito" + remitoNro);
+                var totalRow = $("#totalRemito" + remitoNro);
+                var pendienteText = $("#pendienteText" + remitoNro); // Agregado: obtener el elemento de texto pendiente
+
+                // Mostrar los detalles si la casilla está marcada, ocultar si no está marcada
+                if (isChecked) {
+                    detallesRow.show();
+                    totalRow.show();
+                    pendienteText.hide();
+
+                } else {
+                    detallesRow.hide();
+                    totalRow.hide();
+                    pendienteText.show();
+
+                }
+            });
+
+            // Actualizar el total general
+            actualizarTotalGeneral();
+        }
+
+
+
+
+        // Función para actualizar el total general
+        function actualizarTotalGeneral() {
+            var totalGeneral = 0.00;
+
+            $("input[name='remitosSeleccionados']:checked").each(function () {
+                var remitoNro = $(this).val();
+                console.log("Número de Remito:", remitoNro);
+
+                var totalRemitoText = $("#totalRemito" + remitoNro).text().replace(/[^\d.-]/g, '');
+                console.log("Total Remito Texto:", totalRemitoText);
+
+                // Utiliza la función Number() para convertir el texto a número
+                var totalRemito = Number(totalRemitoText);
+                console.log("Total Remito:", totalRemito);
+
+                // Verifica si totalRemito es un número válido antes de sumarlo
+                if (!isNaN(totalRemito)) {
+                    totalGeneral += totalRemito;
+                }
+            });
+
+            $("#totalGeneral").text(totalGeneral.toFixed(2));
+        }
+
+
+
+        function confirmarRemito() {
+
+            var remitosSeleccionados = obtenerRemitosSeleccionados();
+
+            // Verificar si la lista de remitos seleccionados no es nula o vacía
+            if (remitosSeleccionados.length === 0) {
+                alert('Por favor, selecciona al menos un remito antes de confirmar.');
+                return;
+            }
+            // Llamada AJAX para confirmar los remitos
+            $.ajax({
+                url: '/Remito/ConfirmarRemitos',
+                type: 'POST',
+                data: { remitos: remitosSeleccionados },
+                success: function () {
+                    window.print();
+                    window.location.href = '/Remito/Index';
+
+                },
+                error: function () {
+                    alert('Error al confirmar remitos.');
+                }
+            });
+        }
+
+        function obtenerRemitosSeleccionados() {
+            var remitosSeleccionados = [];
+
+            $("input[name='remitosSeleccionados']:checked").each(function () {
+                remitosSeleccionados.push(parseInt($(this).val()));
+            });
+
+            return remitosSeleccionados;
+        }
+
+        function mostrarDetallesConfirmados() {
+            var remitosConfirmados = obtenerRemitosSeleccionados();
+
+            // Mover el contenido del bloque de detalles confirmados al bloque de impresión
+            $("#impresionRemitosConfirmados").html($("#detallesConfirmados").html());
+
+            // Mostrar el bloque de impresión
+            $("#impresionRemitosConfirmados").show();
+
+            // Ocultar la tabla de remitos pendientes y el bloque de detalles confirmados
+            $("table.table").hide();
+            $("#detallesConfirmados").hide();
+
+            // Actualizar el total general en el bloque de impresión (opcional)
+            actualizarTotalGeneral("#impresionRemitosConfirmados");
+        }
+
+
+    </script>
+
+}
+
