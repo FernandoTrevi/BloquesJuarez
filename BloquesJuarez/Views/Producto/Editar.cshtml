@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<form method="post" asp-action="Editar">
+<form method="post" asp-action="Editar" id="form">
     <input asp-for="Producto.Id" hidden />
 
     <div class="border p-3 main-container">
@@ -43,13 +43,13 @@
                 </div>
                 <div class="col-md-6">
                     <label asp-for="Producto.Precio" class="form-label font-weight-bold">Precio</label>
-                    <input asp-for="Producto.Precio" class="form-control" />
+                    <input asp-for="Producto.Precio" class="form-control" id="precioInput" />
                     <span asp-validation-for="Producto.Precio" class="text-danger"></span>
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-6 col-md-6">
-                    <button type="submit" class="btn btn-primary form-control">Editar Producto</button>
+                    <button type="button" class="btn btn-primary form-control" onclick="prepararFormulario()">Editar Producto</button>
                 </div>
                 <div class="col-6 col-md-6">
                     <a asp-controller="Producto" asp-action="Index" class="btn btn-secondary form-control">Regresar</a>
@@ -71,6 +71,38 @@
     @{
         <partial name="_ValidationScriptsPartial" />
     }
+    <script>
+        function prepararFormulario() {
+            // Obtener el valor actual del campo de precio
+            var precioInput = document.getElementById('precioInput');
+            var precioValue = precioInput.value;
+
+            // Reemplazar el punto por coma en el valor
+            var precioValueComa = precioValue.replace('.', ',');
+
+            // Asignar el nuevo valor al campo de precio
+            precioInput.value = precioValueComa;
+
+            // Enviar el formulario
+            document.getElementById('form').submit();
+        }
+
+        // Cambiar el comportamiento de la validación del lado del cliente
+        $.validator.methods.number = function (value, element) {
+            value = floatValue(value);
+            return this.optional(element) || !isNaN(value);
+        }
+
+        $.validator.methods.range = function (value, element, param) {
+            value = floatValue(value);
+            return this.optional(element) || (value >= param[0] && value <= param[1]);
+        }
+
+        function floatValue(value) {
+            return parseFloat(value.replace(",", "."));
+        }
+    </script>
+
 }
 
 

@@ -73,7 +73,7 @@ namespace BloquesJuarez.Controllers
 
                 FechaActual = DateTime.Today,
 
-                Remito = new Remito { NroRemito = ultimoNumeroOrden },
+                Remito = new Remito { NroRemito = ultimoNumeroOrden, LugarEntrega = "En la dirección del cliente" },
                 // Inicializa la lista de detalles como una lista vacía
                 RemitoDetalle = new List<RemitoDetalle>()
             };

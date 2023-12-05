@@ -25,7 +25,8 @@ namespace BloquesJuarez.Models
         public string UniDeMedida { get; set; }
 
         [Required(ErrorMessage = "Ingrese el precio del producto")]
-        [Range(1, 10000)]
+        [Range(1, double.MaxValue)]
+        [DisplayFormat(DataFormatString = "{0:F2}", ApplyFormatInEditMode = true)]
         public double Precio { get; set; }
 
         [NotMapped] //No se agrega el campo a la base de datos.

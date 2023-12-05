@@ -65,7 +65,7 @@
                             @if (Model.Remito.Estado == EstadoRemito.Pagado)
                             {
                                 <td>@detalle.Producto.Precio</td>
-                                <td>@(Convert.ToDecimal(detalle.Cantidad) * (decimal)detalle.Producto.Precio)</td>
+                                <td>@((Convert.ToDecimal(detalle.Cantidad) * (decimal)detalle.Producto.Precio).ToString("F2"))</td>
                             }
                             else
                             {
@@ -84,7 +84,9 @@
             <!-- Total -->
             @if (Model.Remito.Estado == EstadoRemito.Pagado)
             {
-                <h5 class="text-right">Total: @Convert.ToDecimal(Model.RemitoDetalle.Sum(d => Convert.ToDecimal(d.Cantidad) * (decimal)d.Producto.Precio)).ToString("C")</h5>
+                <h5 class="text-right">
+                    Total: $ @Convert.ToDecimal(Model.RemitoDetalle.Sum(d => Convert.ToDecimal(d.Cantidad) * (decimal)d.Producto.Precio)).ToString("N2")
+                </h5>
             }
 
 
@@ -166,8 +168,10 @@
                             @if (Model.Remito.Estado == EstadoRemito.Pagado)
                             {
                                 <td>@detalle.Producto.Precio</td>
-                                <td>@(Convert.ToDecimal(detalle.Cantidad) * (decimal)detalle.Producto.Precio)</td>
+                                <td>@((Convert.ToDecimal(detalle.Cantidad) * (decimal)detalle.Producto.Precio).ToString("F2"))</td>
                             }
+                            <td></td>
+                            <td></td>
                         </tr>
                     }
                 </tbody>
@@ -177,7 +181,9 @@
     </div>
     @if (Model.Remito.Estado == EstadoRemito.Pagado)
     {
-        <h5 class="text-right d-none d-print-block">Total: @Convert.ToDecimal(Model.RemitoDetalle.Sum(d => Convert.ToDecimal(d.Cantidad) * (decimal)d.Producto.Precio)).ToString("C")</h5>
+        <h5 class="text-right d-none d-print-block">
+            Total: $ @Convert.ToDecimal(Model.RemitoDetalle.Sum(d => Convert.ToDecimal(d.Cantidad) * (decimal)d.Producto.Precio)).ToString("N2")
+        </h5>
 
     }
 
