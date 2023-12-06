@@ -32,20 +32,20 @@ Actualmente se ha desplegado en la PC del cliente, en un servidor local con las 
 A continuación, algunas imágenes que destacan las principales funciones del sistema:
 
 1. **Home:**
-   ![Principal](/imagenes/JuarezCapturas/Home.png)
+   ![Principal](BloquesJuarez/wwwroot/imagenes/JuarezCapturas/Home.png)
 Página principal, que cuenta con acceso directo a las funciones más utilizadas.
 2. **Carga de Remitos:**
-   ![Listado de remitos](/imagenes/JuarezCapturas/IndexRemito.png)
-   ![Carga de remito y detalles](/imagenes/JuarezCapturas/MasterDetails.png)
-   ![Ver remito](/imagenes/JuarezCapturas/VerRemito.png)
-   ![Imprimir Remito](/imagenes/JuarezCapturas/ImprimirRemito.png)
+   ![Listado de remitos](BloquesJuarez/wwwroot/imagenes/JuarezCapturas/IndexRemito.png)
+   ![Carga de remito y detalles](BloquesJuarez/wwwroot/imagenes/JuarezCapturas/MasterDetails.png)
+   ![Ver remito](BloquesJuarez/wwwroot/imagenes/JuarezCapturas/VerRemito.png)
+   ![Imprimir Remito](BloquesJuarez/wwwroot/imagenes/JuarezCapturas/ImprimirRemito.png)
 3. **Funciones ABM Clientes/Productos/Categoría**
-   ![Listado de productos](/imagenes/JuarezCapturas/IndexProd.png)
-   ![Crear Cliente](/imagenes/JuarezCapturas/NuevoCliente.png)
+   ![Listado de productos](BloquesJuarez/wwwroot/imagenes/JuarezCapturas/IndexProd.png)
+   ![Crear Cliente](BloquesJuarez/wwwroot/imagenes/JuarezCapturas/NuevoCliente.png)
   Todos lo ABM cuentan con la misma lógica y distribución de los controles para mantener una coherencia general. Los index cuentan con funciones de paginación y búsqueda.
 5. **Listado de Clientes con Remitos Pendientes:**
-   ![Listado de clientes con pendientes](/imagenes/JuarezCapturas/ClientesConPendientes.png)
-   ![Detalle de Pendientes del cliente](/imagenes/JuarezCapturas/VerPendientesCliente.png)
+   ![Listado de clientes con pendientes](BloquesJuarez/wwwroot/imagenes/JuarezCapturas/ClientesConPendientes.png)
+   ![Detalle de Pendientes del cliente](BloquesJuarez/wwwroot/imagenes/JuarezCapturas/VerPendientesCliente.png)
 
 ## Contribuciones
 
