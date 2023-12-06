@@ -21,7 +21,7 @@ El presente proyecto tiene como objetivo el desarrollo de un Sistema Informátic
 Actualmente se ha desplegado en la PC del cliente, en un servidor local con las siguientes funcionalidades:
 
 - **ABM (Alta, Baja, Modificación) de Clientes, Categorías y Productos.**
-- 
+  
 - **Gestión de Remitos:**
   - Carga de remitos abiertos (sin precio) y remitos completos.
   - Listado y filtro de clientes con remitos pendientes.
@@ -56,7 +56,7 @@ A continuación, algunas imágenes que destacan las principales funciones del si
 
 ## Contribuciones
 
-¡Contribuciones son bienvenidas! Si tienes sugerencias o encuentras problemas, por favor, abre un [issue](https://github.com/tu-usuario/BloquesJuarez/issues).
+¡Contribuciones son bienvenidas! Si tienes sugerencias o encuentras problemas, por favor, abre un [issue](https://github.com/FernandoTrevi/BloquesJuarez).
 
 ## Contacto
 
@@ -64,4 +64,4 @@ Para más información, contacta al desarrollador:
 
 - Nombre: [Fernando Trevisani]
 - Correo Electrónico: [trevi83.ft@gmail.com]
-- LinkedIn: [FernandoTrevi]
+- LinkedIn: [www.linkedin.com/in/fernando-trevi-a31925225]
