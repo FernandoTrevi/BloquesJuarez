@@ -54,7 +54,7 @@
                                     <td>@item.NombreProducto</td>
                                     <td>@item.Categoria.NombreCategoria</td>
                                     <td>@item.UniDeMedida</td>
-                                    <td>@item.Precio</td>
+                                    <td style="text-align: right;">@item.Precio.ToString("C2", System.Globalization.CultureInfo.CreateSpecificCulture("es-AR"))</td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
                                             <a asp-controller="Producto" asp-action="Editar" asp-route-Id="@item.Id" class="btn btn-primary mx-2" data-toggle="tooltip" title="Modificar datos del producto">

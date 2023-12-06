@@ -56,14 +56,18 @@ namespace BloquesJuarez.Controllers
                 // Comprobar si la categoria ya existe en la base de datos
                 if (_db.Categoria.Any(c => c.NombreCategoria == categoria.NombreCategoria))
                 {
+                    TempData[WC.Error] = "La categoría ya existe!";
+
                     ModelState.AddModelError("Nombre", "La Categoría ya existe!");
-                    return View(categoria);
+                    return RedirectToAction(nameof(Index));
                 }
 
                 _db.Categoria.Add(categoria);
                 _db.SaveChanges();
-                TempData["success"] = "Categoría creada exitosamente!";
+                TempData[WC.Exitosa] = "Categoría creada exitosamente!";
             }
+            TempData[WC.Error] = "Hubo un error al crear la categoría";
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -91,9 +95,10 @@ namespace BloquesJuarez.Controllers
             {
                 _db.Categoria.Update(categoria);
                 _db.SaveChanges();
-                TempData["success"] = "Categoría Actualizada exitosamente";
+                TempData[WC.Exitosa] = "Categoría Actualizada exitosamente";
                 return RedirectToAction(nameof(Index));
             }
+            TempData[WC.Error] = "Hubo un error al actualizar la categoría";
             return View(categoria);
         }
 
@@ -119,11 +124,13 @@ namespace BloquesJuarez.Controllers
         {
             if (categoria == null)
             {
+                TempData[WC.Error] = "Hubo un error al eliminar la categoría";
+
                 return NotFound();
             }
             _db.Categoria.Remove(categoria);
             _db.SaveChanges();
-            TempData["success"] = "Categoría Eliminada exitosamente";
+            TempData[WC.Exitosa] = "Categoría Eliminada exitosamente";
             return RedirectToAction(nameof(Index));
         }
     }

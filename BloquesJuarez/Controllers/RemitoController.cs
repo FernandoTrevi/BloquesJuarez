@@ -138,13 +138,16 @@ namespace BloquesJuarez.Controllers
 
                     // 5. Guardar los cambios en la base de datos
                     await _db.SaveChangesAsync();
+                    TempData[WC.Exitosa] = "El remito se generó exitosamente.";
 
                     return RedirectToAction("Ver", new { id = IdDeRemito });
                 }
                 catch (Exception ex)
                 {
+                    TempData[WC.Error] = "Ocurrió un error al procesar el remito";
+
                     // Manejar excepciones aquí, realizar rollback si es necesario
-                    ModelState.AddModelError(string.Empty, "Ocurrió un error al procesar la orden de compra.");
+                    ModelState.AddModelError(string.Empty, "Ocurrió un error al procesar el remito");
                 }
             }
 
@@ -162,7 +165,7 @@ namespace BloquesJuarez.Controllers
                     Value = p.NombreProducto,
                     Text = p.NombreProducto
                 });
-
+            TempData[WC.Error] = "Ocurrió un error al procesar el remito";
             return View(remitoVM);
         }
 
@@ -235,7 +238,7 @@ namespace BloquesJuarez.Controllers
             _db.RemitoDetalle.RemoveRange(remitoDetalles);
 
             await _db.SaveChangesAsync();
-
+            TempData[WC.Exitosa] = "El remito se eliminó con éxito.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -360,7 +363,7 @@ namespace BloquesJuarez.Controllers
                     }
                 }
                 _db.SaveChanges();
-
+                TempData[WC.Exitosa] = "Se confirmó el pago de los remitos seleccionados.";
                 return Json(new { success = true });
             }
             catch (Exception ex)

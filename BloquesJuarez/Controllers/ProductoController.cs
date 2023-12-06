@@ -72,15 +72,23 @@ namespace BloquesJuarez.Controllers
             {
                 try
                 {
+                    if (_db.Producto.Any(c => c.NombreProducto == productoVM.Producto.NombreProducto))
+                    {
+                        TempData[WC.Error] = "El producto ya existe!";
+
+                        ModelState.AddModelError("Nombre", "El producto ya existe!");
+                        return RedirectToAction(nameof(Index));
+                    }
                     // Agrega el producto al contexto de la base de datos
                     _db.Producto.Add(productoVM.Producto);
                     _db.SaveChanges();
-
+                    TempData[WC.Exitosa] = "El producto se creó correctamente!";
                     // Redirige a la acción "Index" después de crear el producto
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
+                    TempData[WC.Error] = "Error al crear el producto";
                     Console.WriteLine($"Error inesperado: {ex.Message}");
                     // Puedes manejar errores inesperados aquí
                     // Redirige a la vista de creación en caso de excepción
@@ -101,6 +109,7 @@ namespace BloquesJuarez.Controllers
                     Text = c.NombreCategoria,
                     Value = c.Id.ToString()
                 });
+                TempData[WC.Error] = "Error al crear el producto";
 
                 return View(productoVM);
             }
@@ -157,12 +166,14 @@ namespace BloquesJuarez.Controllers
                     productoOriginal.Precio = productoVM.Producto.Precio;
 
                     _db.Entry(productoOriginal).State = EntityState.Modified;
+                    TempData[WC.Exitosa] = "El producto se modificó correctamente!";
+
                     await _db.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    // Manejar excepciones de concurrencia si es necesario
+                    TempData[WC.Error] = "Hubo un error al modificar el producto.";
                     throw;
                 }
             }
@@ -173,6 +184,7 @@ namespace BloquesJuarez.Controllers
                 Text = c.NombreCategoria,
                 Value = c.Id.ToString()
             });
+            TempData[WC.Error] = "Hubo un error. Modelo inválido.";
 
             return View(productoVM);
         }
@@ -183,6 +195,8 @@ namespace BloquesJuarez.Controllers
             var producto = await _db.Producto.FindAsync(id);
             if (producto == null)
             {
+                TempData[WC.Error] = "No se encontró el producto a eliminar.";
+
                 return NotFound();
             }
             return View(producto);
@@ -196,10 +210,13 @@ namespace BloquesJuarez.Controllers
             var producto = await _db.Producto.FindAsync(id);
             if (producto == null)
             {
+                TempData[WC.Error] = "No se encontró el producto a eliminar.";
                 return NotFound();
             }
             _db.Producto.Remove(producto);
             await _db.SaveChangesAsync();
+            TempData[WC.Exitosa] = "Producto eliminado con éxito.";
+
             return RedirectToAction(nameof(Index));
         }
 

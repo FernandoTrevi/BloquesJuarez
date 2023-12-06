@@ -82,8 +82,16 @@ namespace BloquesJuarez.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    if (_db.Cliente.Any(c => c.NombreCliente == clienteVM.Cliente.NombreCliente))
+                    {
+                        TempData[WC.Error] = "El cliente ya existe!";
+
+                        ModelState.AddModelError("Nombre", "El cliente ya existe!");
+                        return View(clienteVM);
+                    }
                     _db.Cliente.Add(clienteVM.Cliente);
                     _db.SaveChanges();
+                    TempData[WC.Exitosa] = "El cliente se creó con éxito!";
                     return RedirectToAction(nameof(Index));
                 }
                 
@@ -158,6 +166,7 @@ namespace BloquesJuarez.Controllers
                         clienteOriginal.Cuit = clienteVM.Cliente.Cuit;
 
                         _db.Entry(clienteOriginal).State = EntityState.Modified;
+                        TempData[WC.Exitosa] = "El cliente se modificó correctamente.";
                         await _db.SaveChangesAsync();
                         return RedirectToAction(nameof(Index));
                     }
@@ -179,8 +188,8 @@ namespace BloquesJuarez.Controllers
                     Text = c.Iva,
                     Value = c.Id.ToString()
                 });
-
-                return View(clienteVM);
+            TempData[WC.Error] = "Error al modificar los datos del cliente.";
+            return View(clienteVM);
             }
 
 
@@ -203,11 +212,13 @@ namespace BloquesJuarez.Controllers
                 var cliente = await _db.Cliente.FindAsync(id);
                 if (cliente == null)
                 {
+                    TempData[WC.Error] = "No se encontró el cliente a eliminar!";
                     return NotFound();
                 }
                 _db.Cliente.Remove(cliente);
                 await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+            TempData[WC.Exitosa] = "El cliente se eliminó con éxito.";
+            return RedirectToAction(nameof(Index));
             }
         }
     }
