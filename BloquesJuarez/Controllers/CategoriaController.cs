@@ -66,7 +66,6 @@ namespace BloquesJuarez.Controllers
                 _db.SaveChanges();
                 TempData[WC.Exitosa] = "Categoría creada exitosamente!";
             }
-            TempData[WC.Error] = "Hubo un error al crear la categoría";
 
             return RedirectToAction(nameof(Index));
         }
