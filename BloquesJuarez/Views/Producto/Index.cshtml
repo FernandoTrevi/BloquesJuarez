@@ -14,9 +14,15 @@
         </div>
         <div class="col-6 text-end">
             <a asp-controller="Producto" asp-action="Crear" class="btn btn-primary" data-toggle="tooltip" title="Agregar un nuevo producto o servicio">
-                <i class="fas fa-plus"></i>  Nuevo Producto
+                <i class="bi bi-plus"></i> Nuevo Producto
             </a>
+
+            <!-- Nuevo botón para abrir el modal de cambiar precios -->
+            <button class="btn btn-info ml-2" onclick="AbrirModalActualizarPrecios()" data-toggle="tooltip" title="Cambiar Precios Por Categoría.">
+                <i class="bi bi-cash-coin"></i> Cambiar Precios
+            </button>
         </div>
+
     </div>
 
     <form asp-controller="Producto" asp-action="Index">
@@ -103,12 +109,165 @@
     {
         <p>No hay registros de Productos</p>
     }
+    <div id="modalActualizarPrecios" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="CerrarModalActualizarPrecios()">&times;</span>
+            <h2>Actualizar Precios</h2>
+
+            <label for="categoria">Categoría:</label>
+            <select id="categoria">
+                <option value="todos">Todos</option>
+                @foreach (var categoria in ViewBag.Categorias)
+                {
+                    <option value="@categoria.Id">@categoria.NombreCategoria</option>
+                }
+            </select>
+            <label for="porcentaje">Porcentaje de Actualización:</label>
+            <div class="input-group">
+                <input type="number" id="porcentaje" placeholder="Ingrese el porcentaje" class="form-control">
+                <span class="input-group-text">%</span>
+
+            </div>
+
+
+            <label for="direccion">Dirección de Modificación:</label>
+            <select id="direccion">
+                <option value="subir">Subir</option>
+                <option value="bajar">Bajar</option>
+            </select>
+
+            <!-- Cambia el botón a un enlace y asigna un identificador único -->
+            <a href="#" id="btnActualizarPreciosModal" onclick="ActualizarPrecios()" class="btn btn-info">Actualizar</a>
+        </div>
+    </div>
+
 </div>
 
-<script>
-    function goBack() {
-        window.history.back();
-    }
-</script>
+
+@section Scripts {
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+       
+        function AbrirModalActualizarPrecios() {
+            document.getElementById("modalActualizarPrecios").style.display = "block";
+        }
 
 
+        function CerrarModalActualizarPrecios() {
+            // Limpiar los valores de los elementos dentro del modal
+            document.getElementById("categoria").value = "todos";
+            document.getElementById("porcentaje").value = "";
+            document.getElementById("direccion").value = "subir";
+
+            // Lógica para cerrar el modal
+            document.getElementById("modalActualizarPrecios").style.display = "none";
+        }
+
+
+        function ActualizarPrecios() {
+            var categoria = document.getElementById("categoria").value;
+            var porcentaje = document.getElementById("porcentaje").value;
+            var direccion = document.getElementById("direccion").value;
+
+            // Validar que los valores sean correctos antes de realizar la solicitud AJAX
+            if (!categoria || isNaN(porcentaje) || porcentaje <= 0 || !direccion) {
+                // Mostrar mensaje de alerta
+                alert("Por favor, complete todos los campos correctamente y asegúrese de que el porcentaje sea mayor que cero.");
+                return;
+            }
+
+
+            // Realizar la solicitud AJAX
+            $.ajax({
+                url: '@Url.Action("ActualizarPrecios", "Producto")',
+                type: 'POST', // Puedes cambiar a 'GET' según tus necesidades
+                data: {
+                    categoria: categoria,
+                    porcentaje: porcentaje,
+                    direccion: direccion
+                },
+                success: function (result) {
+                    toastr.success('@TempData[WC.Exitosa]', 'Se modificaron los precios con éxito');
+                    // Recargar la página después de la actualización
+                    setTimeout(function () {
+                        // Recargar la página después de la actualización
+                        location.reload();
+                    }, 2000);
+                },
+
+
+
+                error: function (error) {
+                    // Mostrar el mensaje de error en un cuadro de alerta
+                    toastr.error('@TempData[WC.Error]', 'Error al modificar los precios');
+                }
+
+            });
+        }
+
+   
+
+    </script>
+    <style>
+        /* Estilos para el modal */
+        #modalActualizarPrecios {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+
+            #modalActualizarPrecios .modal-content {
+                background-color: #fff;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                max-width: 400px;
+                margin: 0 auto;
+                padding: 20px;
+                position: relative;
+            }
+
+            /* Estilos para el botón de cerrar el modal */
+            #modalActualizarPrecios .close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                cursor: pointer;
+            }
+
+            /* Estilos para el campo de entrada y el botón en el modal */
+            #modalActualizarPrecios label {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            #modalActualizarPrecios select,
+            #modalActualizarPrecios input[type="number"] {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+            }
+
+            #modalActualizarPrecios button {
+                background-color: #007bff;
+                color: #fff;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+
+                #modalActualizarPrecios button:hover {
+                    background-color: #0056b3;
+                }
+    </style>
+
+}

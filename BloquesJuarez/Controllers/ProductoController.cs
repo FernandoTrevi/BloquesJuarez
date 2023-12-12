@@ -44,6 +44,10 @@ namespace BloquesJuarez.Controllers
                     query = query.OrderBy(producto => producto.NombreProducto);
                     break;
             }
+            
+            // Obtener las categorías y almacenarlas en el ViewBag
+            var categorias = await _db.Categoria.ToListAsync();
+            ViewBag.Categorias = categorias;
 
             int cantidadregistros = 5;
             var paginacion = await Paginacion<Producto>.CrearPaginacion(query, numpag ?? 1, cantidadregistros);
@@ -63,6 +67,42 @@ namespace BloquesJuarez.Controllers
             };
             return View(productoVM);
         }
+
+        [HttpPost]
+        public IActionResult ActualizarPrecios(int categoria, int porcentaje, string direccion)
+        {
+            try
+            {
+                IQueryable<Producto> productosToUpdate;
+
+                if (categoria == 0) // Supongamos que 0 representa la categoría "todos"
+                {
+                    productosToUpdate = _db.Producto;
+                }
+                else
+                {
+                    productosToUpdate = _db.Producto.Where(p => p.CategoriaId == categoria);
+                }
+
+                foreach (var producto in productosToUpdate)
+                {
+                    decimal factor = (direccion.ToLower() == "subir") ? (1 + porcentaje / 100M) : (1 - porcentaje / 100M);
+                    producto.Precio = producto.Precio * (double)factor;
+                }
+
+                _db.SaveChanges();
+
+                TempData[WC.Exitosa] = "Precios actualizados correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData[WC.Error] = "Error al actualizar los precios.";
+                Console.WriteLine($"Error inesperado: {ex.Message}");
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         // POST: ProductoController/Crear
         [HttpPost]
         [ValidateAntiForgeryToken]
