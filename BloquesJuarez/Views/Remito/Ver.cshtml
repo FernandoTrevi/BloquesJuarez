@@ -8,7 +8,7 @@
     <div class="row mt-2">
         <div class="col-sm-2">
             <!-- Logo compacto -->
-            <img src="/imagenes/logoJuarez.jpg" alt="Logo de la empresa" class="img-fluid" style="max-width: 80px;">
+            <img src="/imagenes/logoJuarez.jpg" alt="Logo de la empresa" class="img-fluid" style="max-width: 75px;">
         </div>
 
         <div class="col-sm-6">
@@ -58,13 +58,13 @@
                 <tbody>
                     @foreach (var detalle in Model.RemitoDetalle)
                     {
-                        <tr>
+                        <tr class="fila-detalle">
                             <td>@detalle.Cantidad @detalle.Producto.UniDeMedida</td>
                             <td>@detalle.Producto.NombreProducto</td>
 
                             @if (Model.Remito.Estado == EstadoRemito.Pagado)
                             {
-                                <td>@detalle.Producto.Precio</td>
+                                <td>@detalle.Producto.Precio.ToString("F2")</td>
                                 <td>@((Convert.ToDecimal(detalle.Cantidad) * (decimal)detalle.Producto.Precio).ToString("F2"))</td>
                             }
                             else
@@ -100,7 +100,7 @@
     
   
     <!-- ... Linea... -->
-    <div class="row mt-2 d-none d-print-block" style="page-break-before:always">
+    <div class="row mt-2 d-none d-print-block">
         <div class="col-sm-12 text-center">
             <hr style="border: 1px dashed #000; width: 100%; margin: 10px auto;">
         </div>
@@ -111,7 +111,7 @@
     <div class="row mt-2 d-none d-print-flex">
         <div class="col-sm-2">
             <!-- Logo compacto -->
-            <img src="/imagenes/logoJuarez.jpg" alt="Logo de la empresa" class="img-fluid" style="max-width: 80px;">
+            <img src="/imagenes/logoJuarez.jpg" alt="Logo de la empresa" class="img-fluid" style="max-width: 75px;">
         </div>
 
         <div class="col-sm-6">
@@ -167,7 +167,7 @@
                             <td>@detalle.Producto.NombreProducto</td>
                             @if (Model.Remito.Estado == EstadoRemito.Pagado)
                             {
-                                <td>@detalle.Producto.Precio</td>
+                                <td>@detalle.Producto.Precio.ToString("F2")</td>
                                 <td>@((Convert.ToDecimal(detalle.Cantidad) * (decimal)detalle.Producto.Precio).ToString("F2"))</td>
                             }
                             <td></td>
@@ -181,7 +181,7 @@
     </div>
     @if (Model.Remito.Estado == EstadoRemito.Pagado)
     {
-        <h5 class="text-right d-none d-print-block">
+        <h5 class="text-right d-none d-print-flex">
             Total: $ @Convert.ToDecimal(Model.RemitoDetalle.Sum(d => Convert.ToDecimal(d.Cantidad) * (decimal)d.Producto.Precio)).ToString("N2")
         </h5>
 
@@ -192,7 +192,15 @@
 </div>
 <style>
     .col-sm-6 p {
-        margin-bottom: 0.1rem; /* Ajusta según tus necesidades */
+        margin-bottom: 0.05rem; 
+    }
+
+    .fila-detalle {
+        height: 7px; /* Ajusta el valor según tus necesidades */
+    }
+
+    .fila-detalle td {
+        font-size: 12px; /* Ajusta el valor según tus necesidades */
     }
 </style>
 @section Scripts {

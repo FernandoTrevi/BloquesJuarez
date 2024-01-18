@@ -190,9 +190,10 @@
                 },
                 success: function (result) {
                     toastr.success('@TempData[WC.Exitosa]', 'Se modificaron los precios con éxito');
-                    // Recargar la página después de la actualización
+                    CerrarModalActualizarPrecios();
+
+                    // Esperar 2000 milisegundos (2 segundos) antes de recargar la página
                     setTimeout(function () {
-                        // Recargar la página después de la actualización
                         location.reload();
                     }, 2000);
                 },
