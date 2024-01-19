@@ -64,8 +64,9 @@
 
                             @if (Model.Remito.Estado == EstadoRemito.Pagado)
                             {
-                                <td>@detalle.Producto.Precio.ToString("F2")</td>
-                                <td>@((Convert.ToDecimal(detalle.Cantidad) * (decimal)detalle.Producto.Precio).ToString("F2"))</td>
+                                <td>@string.Format("{0:F2}", detalle.PrecioCobrado)</td>
+                                <td>@string.Format("{0:F2}", Convert.ToDecimal(detalle.Cantidad) * (decimal)detalle.PrecioCobrado)</td>
+
                             }
                             else
                             {
@@ -85,7 +86,7 @@
             @if (Model.Remito.Estado == EstadoRemito.Pagado)
             {
                 <h5 class="text-right">
-                    Total: $ @Convert.ToDecimal(Model.RemitoDetalle.Sum(d => Convert.ToDecimal(d.Cantidad) * (decimal)d.Producto.Precio)).ToString("N2")
+                    Total: $ @Convert.ToDecimal(Model.RemitoDetalle.Sum(d => Convert.ToDecimal(d.Cantidad) * (decimal)d.PrecioCobrado)).ToString("N2")
                 </h5>
             }
 

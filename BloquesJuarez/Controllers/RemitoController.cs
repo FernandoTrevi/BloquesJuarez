@@ -117,24 +117,35 @@ namespace BloquesJuarez.Controllers
 
                         if (productoIdSeleccionado.HasValue)
                         {
-                            var remitoDetalle = new RemitoDetalle
-                            {
-                                RemitoId = IdDeRemito,
-                                ProductoId = productoIdSeleccionado.Value,
-                                Nombre = detalle.Nombre,
-                                Cantidad = detalle.Cantidad
-                            };
+                            // Consultar la base de datos para obtener el producto por su ID
+                            var producto = _db.Producto.FirstOrDefault(p => p.Id == productoIdSeleccionado.Value);
 
-                            _db.Add(remitoDetalle);
+                            if (producto != null)
+                            {
+                                var remitoDetalle = new RemitoDetalle
+                                {
+                                    RemitoId = IdDeRemito,
+                                    ProductoId = productoIdSeleccionado.Value,
+                                    Nombre = detalle.Nombre,
+                                    Cantidad = detalle.Cantidad,
+                                    PrecioCobrado = remitoVM.Remito.Estado == EstadoRemito.Pagado ? (decimal?)producto.Precio : null
+                                };
+
+                                _db.Add(remitoDetalle);
+                            }
+                            else
+                            {
+                                // Manejar el caso en el que no se encontró el Producto con el ID proporcionado
+                                TempData[WC.Error] = $"No se encontró un producto con el ID {productoIdSeleccionado.Value}.";
+                            }
                         }
                         else
                         {
                             // Manejar el caso en el que no se encontró el ProductoId
-                            // Puedes mostrar un mensaje de error o tomar una acción adecuada
+                            TempData[WC.Error] = "No se proporcionó un ProductoId válido.";
                         }
                     }
 
-                    
 
                     // 5. Guardar los cambios en la base de datos
                     await _db.SaveChangesAsync();
@@ -144,7 +155,7 @@ namespace BloquesJuarez.Controllers
                 }
                 catch (Exception ex)
                 {
-                    TempData[WC.Error] = "Ocurrió un error al procesar el remito";
+                    TempData[WC.Error] = $"Ocurrió un error al procesar el remito: {ex.Message}";
 
                     // Manejar excepciones aquí, realizar rollback si es necesario
                     ModelState.AddModelError(string.Empty, "Ocurrió un error al procesar el remito");
@@ -353,18 +364,35 @@ namespace BloquesJuarez.Controllers
         {
             try
             {
-                // Lógica para actualizar el estado de los remitos en la base de datos a "Pagado"
-                foreach (var remitoId in remitos)
+                using (var transaction = _db.Database.BeginTransaction())
                 {
-                    var remito = _db.Remito.FirstOrDefault(r => r.NroRemito == remitoId);
-                    if (remito != null)
+                    foreach (var remitoId in remitos)
                     {
-                        remito.Estado = EstadoRemito.Pagado;
+                        var remito = _db.Remito.Include(r => r.Detalles).FirstOrDefault(r => r.NroRemito == remitoId);
+
+                        if (remito != null)
+                        {
+                            remito.Estado = EstadoRemito.Pagado;
+
+                            foreach (var detalle in remito.Detalles)
+                            {
+                                // Obtener el producto asociado al detalle
+                                var producto = _db.Producto.FirstOrDefault(p => p.Id == detalle.ProductoId);
+
+                                // Actualizar PrecioCobrado con el precio del producto
+                                detalle.PrecioCobrado = producto?.Precio != null ? (decimal?)Convert.ToDecimal(producto.Precio) : null;
+
+                                // También podrías manejar el caso donde producto es null según tus necesidades
+                            }
+                        }
                     }
+
+                    _db.SaveChanges();
+                    transaction.Commit();
+
+                    TempData[WC.Exitosa] = "Se confirmó el pago de los remitos seleccionados.";
+                    return Json(new { success = true });
                 }
-                _db.SaveChanges();
-                TempData[WC.Exitosa] = "Se confirmó el pago de los remitos seleccionados.";
-                return Json(new { success = true });
             }
             catch (Exception ex)
             {
@@ -372,7 +400,8 @@ namespace BloquesJuarez.Controllers
             }
         }
 
-       
+
+
 
 
         // Función para obtener el último número de orden

@@ -27,6 +27,8 @@ namespace BloquesJuarez.Models
 
         [ForeignKey("RemitoId")]
         public Remito Remito { get; set; }
+
+        public decimal? PrecioCobrado { get; set; }
     }
 
 }
