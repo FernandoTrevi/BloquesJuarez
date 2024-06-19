@@ -61,11 +61,17 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a asp-controller="Remito" asp-action="Ver" asp-route-Id="@item.Id" class="btn btn-primary mx-2" data-toggle="tooltip" title="Ver detalles del remito">
+                                            @{
+                                                bool disableEdit = item.Estado != EstadoRemito.Pendiente;
+                                            }
+                                            <a asp-action="Editar" asp-route-Id="@item.Id" class="btn btn-primary mx-2 @(disableEdit ? "disabled" : "") data-toggle="tooltip" title="Editar datos del remito">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <a asp-action="Ver" asp-route-Id="@item.Id" class="btn btn-primary mx-2" data-toggle="tooltip" title="Ver detalles del remito">
                                                 <i class="bi bi-eye"></i>
                                             </a>
 
-                                            <a asp-controller="Remito" asp-action="Eliminar" asp-route-Id="@item.Id" class="btn btn-danger mx-2" data-toggle="tooltip" title="Elimiar el remito">
+                                            <a asp-action="Eliminar" asp-route-Id="@item.Id" class="btn btn-danger mx-2" data-toggle="tooltip" title="Elimiar el remito">
                                                 <i class="bi bi-trash"></i>
                                             </a>
                                         </div>

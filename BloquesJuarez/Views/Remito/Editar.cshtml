@@ -1,0 +1,381 @@
+﻿@model BloquesJuarez.Models.ViewModels.RemitoVM
+
+@{
+    ViewData["Title"] = "Editar Remito";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="border p-3">
+    <div class="form-group row">
+        <h2 class="text-info">Editar Remito</h2>
+    </div>
+    <hr />
+
+    <form asp-controller="Remito" asp-action="Editar" method="post">
+        <!-- Sección de Información General -->
+        <div class="row">
+            <div class="col-md-6">
+                <label asp-for="Remito.NroRemito" class="form-label">Nro de Remito</label>
+                <input asp-for="Remito.NroRemito" id="Remito_Nro" class="form-control" readonly />
+                <span asp-validation-for="Remito.NroRemito" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="FechaActual" class="form-label">Fecha</label>
+                <input type="date" id="Remito_Fecha" class="form-control" asp-for="FechaActual" value="@Model.FechaActual.ToString("yyyy-MM-dd")"/>
+            </div>
+        </div>
+        <br />
+
+        <!-- Sección de Cliente y Lugar de Entrega -->
+        <div class="row">
+            <div class="col-md-6">
+                <label asp-for="Remito.ClienteId" class="form-label">Cliente</label>
+                <input asp-for="Remito.ClienteId" id="Remito_ClienteId" class="form-control" hidden>
+                <h3>@Model.Remito.Cliente.NombreCliente</h3>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Remito.LugarEntrega" class="form-label">Lugar de Entrega</label>
+                <input asp-for="Remito.LugarEntrega" id="Remito_LugarEntrega" class="form-control" />
+                <span asp-validation-for="Remito.LugarEntrega" class="text-danger"></span>
+            </div>
+        </div>
+        <br />
+
+        <!-- Sección de Observaciones -->
+        <div class="row">
+            <div class="col">
+                <label asp-for="Remito.Observaciones" class="form-label">Observaciones</label>
+                <input asp-for="Remito.Observaciones" id="Remito_Observaciones" class="form-control" />
+                <span asp-validation-for="Remito.Observaciones" class="text-danger"></span>
+            </div>
+        </div>
+        <br />
+
+        <!-- Sección de Detalles del Remito -->
+        <h3 class="text-info">Detalles del Remito</h3>
+        <hr />
+        <br />
+
+        <!-- Sección de Detalles de Producto -->
+        <div class="row align-items-end">
+            <div class="col-md-3">
+                <label asp-for="ProductoNombre" class="form-label">Producto</label>
+                <select asp-for="ProductoNombre" id="ProductoNombre" asp-items="Model.ProductoLista" class="form-select">
+                    <option disabled selected>--Seleccione un Producto--</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="ProductoCantidad" class="form-label">Cantidad</label>
+                <input asp-for="ProductoCantidad" id="ProductoCantidad" class="form-control" />
+                <span asp-validation-for="ProductoCantidad" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <button type="button" id="agregarProducto" onclick="AgregarDetalle()" class="btn btn-info form-control">Agregar Producto</button>
+            </div>
+        </div>
+        <br />
+
+        <!-- Sección de Tabla de Detalles -->
+        <div id="detalles">
+            <table id="tablaDetalle" class="table table-bordered table-striped table-hover">
+                <!-- Encabezado de la tabla -->
+                <thead>
+                    <tr class="table-dark text-center">
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <!-- Cuerpo de la tabla donde se agregarán filas dinámicamente -->
+                <tbody>
+                    @foreach (var detalle in Model.RemitoDetalle)
+                    {
+                        // Reemplazar coma por punto en la cantidad
+                        var cantidadFormateada = detalle.Cantidad.ToString().Replace(',', '.');
+
+                        <tr id="fila_@detalle.Nombre">
+                            <td>@detalle.Producto.NombreProducto</td>
+                            <td>@detalle.Cantidad</td>
+                            <td>
+                                <button type="button" class="btn btn-primary" onclick="AbrirModalEdicion('@detalle.Producto.NombreProducto', '@cantidadFormateada')">Editar</button>
+                                <button type="button" class="btn btn-danger" onclick="EliminarDetalle('@detalle.Producto.NombreProducto')">Eliminar</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <br />
+
+
+        <div class="row">
+
+
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary form-control" onclick="ValidarYEnviar(event)">Confirmar Cambios</button>
+            </div>
+
+
+
+            <div class="col-md-3">
+                <a asp-action="Index" class="btn btn-secondary form-control">Regresar</a>
+            </div>
+        </div>
+        <br />
+
+    </form>
+    <div id="modalEdicion" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="CerrarModalEdicion()">&times;</span>
+            <h2 id="nombreProducto"></h2> <!-- Mostrará el nombre del producto -->
+            <label for="nuevaCantidad">Nueva Cantidad:</label>            
+            <input type="number" step="0.1" id="nuevaCantidad">
+            <button onclick="GuardarEdicion()">Guardar</button>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        var ultimoNombreSeleccionado = ""; // Variable para rastrear el último nombre seleccionado
+
+        function AgregarDetalle() {
+            let Nombre = document.getElementById("ProductoNombre").value;
+            let Cantidad = document.getElementById("ProductoCantidad").value;
+
+            if (Nombre && Cantidad && !isNaN(Cantidad) && Cantidad > 0) {
+                // Crear una nueva fila en la tabla
+                let Tabla = document.getElementById("tablaDetalle");
+                let TR = Tabla.insertRow();
+
+                let TDNombre = TR.insertCell();
+                let TDCantidad = TR.insertCell();
+                let TDAcciones = TR.insertCell();  // Añadir celda para acciones
+
+                TDNombre.innerHTML = Nombre;
+                TDCantidad.innerHTML = Cantidad;
+
+                TR.id = "fila_" + Nombre;  // Asignar id a la fila
+
+                let botonEditar = document.createElement("button");
+                botonEditar.textContent = "Editar";
+                botonEditar.className = "btn btn-primary";
+                botonEditar.type = "button";
+                botonEditar.onclick = function () {
+                    // Llama a la función para abrir el modal de edición
+                    AbrirModalEdicion(Nombre, Cantidad);
+                };
+
+                let botonEliminar = document.createElement("button");
+                botonEliminar.textContent = "Eliminar";
+                botonEliminar.className = "btn btn-danger";
+                botonEliminar.type = "button";
+                botonEliminar.style.marginLeft = "5px";
+                botonEliminar.onclick = function () {
+                    EliminarDetalle(Nombre);
+                };
+
+                TDAcciones.appendChild(botonEditar);
+                TDAcciones.appendChild(botonEliminar);
+
+                // Limpiar los campos
+                document.getElementById("ProductoNombre").value = "";
+                document.getElementById("ProductoCantidad").value = "";
+
+            } else {
+                // Mostrar un mensaje de error si los datos son inválidos
+                alert("Por favor, ingrese un nombre válido y una cantidad mayor a cero.");
+            }
+        }
+
+        function EliminarDetalle(nombre) {
+            // Obtener el id de la fila
+            var filaId = "fila_" + nombre;
+
+            // Eliminar la fila de la tabla
+            var fila = document.getElementById(filaId);
+            if (fila) {
+                fila.remove();
+            }
+        }
+
+        function AbrirModalEdicion(nombre, cantidad) {
+            console.log(nombre, cantidad);
+            // Pasa la cantidad al modal
+            document.getElementById("nuevaCantidad").value = cantidad;
+
+           
+            // Pasa el nombre al modal
+            document.getElementById("nombreProducto").textContent = nombre;
+
+            // Pasa el nombre a una variable global para su uso en la función GuardarEdicion
+            ultimoNombreSeleccionado = nombre;
+
+            // Muestra el modal
+            document.getElementById("modalEdicion").style.display = "block";
+        }
+
+        function CerrarModalEdicion() {
+            document.getElementById("modalEdicion").style.display = "none";
+        }
+
+        function GuardarEdicion() {
+            // Obtén la nueva cantidad del campo en el modal
+            const nuevaCantidad = parseFloat(document.getElementById("nuevaCantidad").value);
+
+            if (!isNaN(nuevaCantidad) && nuevaCantidad > 0) {
+
+                const fila = document.getElementById("fila_" + ultimoNombreSeleccionado);
+                if (fila) {
+                    fila.querySelector("td:nth-child(2)").textContent = nuevaCantidad;
+                }
+
+                // Cierra el modal de edición
+                CerrarModalEdicion();
+            } else {
+                alert("Por favor, ingrese una cantidad válida mayor a cero.");
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+
+        function ValidarYEnviar(event) {
+            // Evitar que el formulario se envíe directamente (ya que estamos manejando la lógica manualmente)
+            event.preventDefault();
+
+            // Obtener el remito del formulario
+            let remito = {
+                Id: @Model.Remito.Id,
+                NroRemito: document.getElementById("Remito_Nro").value,  // Reemplaza "Remito_Nro" con el ID real del input
+                Fecha: document.getElementById("Remito_Fecha").value,  // Reemplaza "Remito_Fecha" con el ID real del input
+                ClienteId: document.getElementById("Remito_ClienteId").value,
+                Observaciones: document.getElementById("Remito_Observaciones").value,
+                LugarEntrega: document.getElementById("Remito_LugarEntrega").value
+            };
+
+            // Obtener los detalles de la tabla
+            let detallesTabla = ObtenerDatosTabla();
+
+            // Crear un objeto con los datos a enviar
+            let datosEnviar = {
+                Remito: remito,
+                RemitoDetalle: detallesTabla
+            };
+
+            // Realizar la solicitud POST al controlador
+            fetch('/Remito/Editar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datosEnviar)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Manejar la respuesta del servidor si es necesario
+                    console.log(data);
+                    // Verificar si la respuesta es exitosa antes de redirigir
+                    if (data.respuesta) {
+                        // Redirigir al índice u otra página
+                        window.location.href = '/Remito/Index';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al enviar la solicitud:', error);
+                });
+        }
+
+        function ObtenerDatosTabla() {
+            let datosArray = [];
+
+            // Obtener la tabla
+            let tabla = document.getElementById("tablaDetalle");
+
+            // Iterar sobre las filas de la tabla (empezando desde 1 para omitir la fila de encabezado)
+            for (let i = 1; i < tabla.rows.length; i++) {
+                let fila = tabla.rows[i];
+                let nombre = fila.cells[0].innerText;  // la celda 0 contiene el nombre
+                let cantidad = parseFloat(fila.cells[1].innerText);  // la celda 1 contiene la cantidad
+
+                // Crear un objeto con los datos de la fila
+                let detalle = {
+                    Nombre: nombre,
+                    Cantidad: cantidad,
+                };
+
+                // Agregar el objeto al array
+                datosArray.push(detalle);
+            }
+
+            return datosArray;
+        }
+
+
+    </script>
+
+   
+    <style>
+        /* Estilos para el modal */
+        .modal {
+            display: none; /* Por defecto, el modal está oculto */
+            position: fixed;
+            top: 70px; /* Margen superior de 70px */
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
+            z-index: 1000; /* Valor alto para que esté en la parte superior */
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 400px;
+            margin: 0 auto; /* Centrar horizontalmente */
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Estilos para el botón de cerrar el modal */
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        /* Estilos para el campo de entrada y el botón en el modal */
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+    </style>
+}
+

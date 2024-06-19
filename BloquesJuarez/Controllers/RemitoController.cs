@@ -43,7 +43,7 @@ namespace BloquesJuarez.Controllers
             }
             else
             {
-                query = query.OrderBy(r => r.Id); // Orden predeterminado
+                query = query.OrderByDescending(r => r.Id); // Orden predeterminado
             }
 
             int cantidadregistros = 5; 
@@ -53,7 +53,6 @@ namespace BloquesJuarez.Controllers
         }
         public IActionResult Crear()
         {
-            // Llama a la función para obtener el último número de orden
             var ultimoNumeroOrden = ObtenerUltimoNumeroOrden();
             var remitoVM = new RemitoVM
             {
@@ -180,6 +179,68 @@ namespace BloquesJuarez.Controllers
             return View(remitoVM);
         }
 
+        public async Task<ActionResult> Editar(int id)
+        {
+            var remito = await _db.Remito
+                    .Include(r => r.Cliente)
+                    .Include(r => r.Detalles)
+                        .ThenInclude(rd => rd.Producto)
+                    .FirstOrDefaultAsync(r => r.Id == id);
+            if (remito == null)
+            {
+                return NotFound();
+            }
+            // Crear un objeto OrdenCompraVM y asignar la orden recuperada
+            RemitoVM remitoVM = new()
+            {
+                Remito = remito,
+                RemitoDetalle = remito.Detalles,
+                FechaActual = remito.Fecha,
+                ProductoLista = _db.Producto
+                    .Select(p => new SelectListItem
+                    {
+                        Value = p.NombreProducto,
+                        Text = p.NombreProducto
+                    }),
+            };
+            return View(remitoVM);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Editar([FromBody] RemitoVM remitoVM)
+        {
+            try
+            {
+                // Obtén la Remito de venta existente con detalles desde la base de datos
+                Remito remitoExistente = await _db.Remito
+                    .Include(r => r.Detalles)
+                    .FirstOrDefaultAsync(r => r.Id == remitoVM.Remito.Id);
+
+                if (remitoExistente != null)
+                {
+                    // Actualiza las propiedades del Remito de Venta
+                    _db.Entry(remitoExistente).CurrentValues.SetValues(remitoVM.Remito);
+
+
+                    // Actualiza los detalles del Remito
+                    ActualizarDetallesRemito(remitoExistente, remitoVM.RemitoDetalle);
+
+                    // Guarda los cambios en la base de datos
+                    await _db.SaveChangesAsync();
+                    TempData[WC.Exitosa] = "El remito se modificó exitosamente.";
+
+                    return Json(new { respuesta = true });
+                }
+
+                return Json(new { respuesta = false, mensaje = "Remito de Venta no encontrada" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { respuesta = false, mensaje = ex.Message });
+            }
+        }
+
+
         public async Task<ActionResult> Ver(int id)
         {
             var remito = await _db.Remito
@@ -253,27 +314,41 @@ namespace BloquesJuarez.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        //public IActionResult ClientesConPendientes()
-        //{
-        //    IQueryable<Remito> query = _db.Remito.Include(r => r.Cliente);
 
-        //    // Filtrar por remitos pendientes
-        //    query = query.Where(r => r.Estado == EstadoRemito.Pendiente);
+        private void ActualizarDetallesRemito(Remito remito, List<RemitoDetalle> nuevosDetalles)
+        {
+            // Elimina los detalles existentes que tienen el mismo Id que los nuevos detalles
+            var detallesEliminar = remito.Detalles
+                .Where(detalle => detalle.RemitoId == remito.Id)
+                .ToList();
 
-        //    var clientesConPendientes = query
-        //        .Select(r => new ClienteConPendientesVM
-        //        {
-        //            Id = r.Cliente.Id,
-        //            NombreCliente = r.Cliente.NombreCliente,
-        //            Telefono = r.Cliente.Telefono,
-        //            RemitosPendientes = _db.Remito.Count(subR => subR.ClienteId == r.ClienteId && subR.Estado == EstadoRemito.Pendiente)
-        //        })
-        //        .Distinct()
-        //        .OrderBy(c => c.NombreCliente)
-        //        .ToList();
+            foreach (var detalleEliminar in detallesEliminar)
+            {
+                //// Desvincula la entidad antes de eliminarla
+                //_db.Entry(detalleEliminar).State = EntityState.Detached;
+                remito.Detalles.Remove(detalleEliminar);
+            }
 
-        //    return View(clientesConPendientes);
-        //}
+            var detallesAgregar = nuevosDetalles
+                .Select(nuevoDetalle =>
+                {
+                    var nuevoDetalleInstancia = new RemitoDetalle
+                    {
+                        ProductoId = ObtenerProductoIdPorNombre(nuevoDetalle.Nombre).Value,
+                        Cantidad = nuevoDetalle.Cantidad,
+                        Nombre = nuevoDetalle.Nombre,
+                        Remito = remito
+                    };
+                    return nuevoDetalleInstancia;
+                })
+                .ToList();
+
+            foreach (var nuevoDetalle in detallesAgregar)
+            {
+                remito.Detalles.Add(nuevoDetalle);
+            }
+
+        }
 
         public async Task<IActionResult> ClientesConPendientes(string buscar, string ordenActual, int? numpag, string filtroActual)
         {
